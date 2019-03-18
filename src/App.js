@@ -47,7 +47,6 @@ class App extends Component {
         return getConditions(this.state.patientId);
       })
       .then(result => {
-        console.log(result);
         this.setState({
           loading: false,
           conditionsLoaded: true,

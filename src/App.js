@@ -1,4 +1,4 @@
-import React, { Component, ReactFragment } from "react";
+import React, { Component } from "react";
 // import logo from './logo.svg';
 // import './App.css';
 import { Form, Input, Button, Container, Row, Col } from "muicss/react";
@@ -24,6 +24,25 @@ const stateReset = {
   errMsg: ""
 };
 
+const columns = [
+  { Header: "Name", accessor: "name" },
+  { Header: "First recorded", accessor: "dateRecorded" },
+  {
+    Header: "See also",
+    id: "pubMedLookup",
+    accessor: s => (
+      <a
+        href={`https://www.ncbi.nlm.nih.gov/pubmed/?term=${
+          s.encodedSearchString
+        }`}
+        target="_blank"
+      >
+        PubMed lookup
+      </a>
+    )
+  }
+];
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -45,9 +64,13 @@ class App extends Component {
       })
       .then(result => {
         this.setState({
-          loading: false,
-          conditionsLoaded: true,
           patientConditions: extractPatientConditions(result)
+        });
+      })
+      .then(() => {
+        this.setState({
+          loading: false,
+          conditionsLoaded: true
         });
       })
       .catch(e => {
@@ -72,25 +95,6 @@ class App extends Component {
   };
 
   render() {
-    const columns = [
-      { Header: "Name", accessor: "name" },
-      { Header: "First recorded", accessor: "dateRecorded" },
-      {
-        Header: "See also",
-        id: "pubMedLookup",
-        accessor: s => (
-          <a
-            href={`https://www.ncbi.nlm.nih.gov/pubmed/?term=${
-              s.encodedSearchString
-            }`}
-            target="_blank"
-          >
-            PubMed lookup
-          </a>
-        )
-      }
-    ];
-
     return (
       <div>
         <header className="mui-appbar mui--z1">
@@ -143,13 +147,13 @@ class App extends Component {
               </div>
             )}
             {this.state.patientLoaded && this.state.conditionsLoaded && (
-              <div>
+              <React.Fragment>
                 <h2>Conditions</h2>
                 <ReactTable
                   data={this.state.patientConditions}
                   columns={columns}
                 />
-              </div>
+              </React.Fragment>
             )}
           </Container>
         </main>

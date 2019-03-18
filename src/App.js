@@ -1,9 +1,10 @@
-import React, { Component } from "react";
+import React, { Component, ReactFragment } from "react";
 // import logo from './logo.svg';
 // import './App.css';
 import { Form, Input, Button, Container, Row, Col } from "muicss/react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
+import { ClipLoader } from "react-spinners";
 
 import {
   getPatient,
@@ -19,7 +20,8 @@ const stateReset = {
   birthDate: "",
   concditionsLoaded: false,
   patientConditions: [],
-  loading: false
+  loading: false,
+  errMsg: ""
 };
 
 class App extends Component {
@@ -34,7 +36,7 @@ class App extends Component {
   }
 
   lookupPatient = () => {
-    this.setState({ loading: true, errMsg: "" });
+    this.setState({ ...stateReset, loading: true });
 
     getPatient(this.state.patientId)
       .then(patientData => {
@@ -45,8 +47,9 @@ class App extends Component {
         return getConditions(this.state.patientId);
       })
       .then(result => {
-        // console.log(result)
+        console.log(result);
         this.setState({
+          loading: false,
           conditionsLoaded: true,
           patientConditions: extractPatientConditions(result)
         });
@@ -94,16 +97,16 @@ class App extends Component {
 
     return (
       <div>
-        <Container style={{ backgroundColor: "#444" }}>
+        <header className="mui-appbar mui--z1">
           <div
             className="mui--text-title mui--text-light mui--text-center"
-            style={{ padding: "15px 15px", minWidth: "200px" }}
+            style={{ padding: "15px 15px" }}
           >
             SMART on FHIR UI Coding Exercise
           </div>
-        </Container>
+        </header>
         <main>
-          <Container style={{ margin: "20px" }}>
+          <Container style={{ marginTop: "30px" }}>
             <Form style={{ width: "60%" }} onSubmit={this.handleSubmit}>
               <legend>Search for patient by ID</legend>
               <Input
@@ -114,14 +117,16 @@ class App extends Component {
               <Button variant="raised">Submit</Button>
             </Form>
             {this.state.errMsg && (
-              <div className="mui--text-body2 mui--text-accent">
+              <div
+                className="mui--text-body2 mui--text-accent"
+                style={{ marginTop: "20px" }}
+              >
                 {this.state.errMsg}
               </div>
             )}
             {this.state.patientLoaded && (
               <Container fluid={true} style={{ padding: "20px 20px" }}>
                 <h2>Patient data</h2>
-
                 <Row>
                   <Col md="3">Patient name</Col>
                   <Col md="3">{this.state.name}</Col>
@@ -136,15 +141,19 @@ class App extends Component {
                 </Row>
               </Container>
             )}
+            {this.state.loading && (
+              <div style={{ margin: "60px 80px" }}>
+                <ClipLoader />
+              </div>
+            )}
             {this.state.patientLoaded && this.state.conditionsLoaded && (
-              <Container>
+              <div>
                 <h2>Conditions</h2>
-
                 <ReactTable
                   data={this.state.patientConditions}
                   columns={columns}
                 />
-              </Container>
+              </div>
             )}
           </Container>
         </main>

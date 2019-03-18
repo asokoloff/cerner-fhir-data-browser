@@ -40,19 +40,17 @@ export function extractPatientDemographics(response) {
 
 export function extractPatientConditions(response) {
   const conditions = pathOr([], ["data", "entry"], response);
-  console.log(conditions);
-  return (
-    conditions // .filter(c => {
-      //     const verificationStatus = path(['resource', 'verificationStatus'])
-      //     return ['confirmed', 'provisional', 'diferential'].indexOf(verificationStatus) > -1;
-      // })
-      .map(c => {
-        const name = pathOr("N/A", ["resource", "code", "text"], c);
-        const dateRecorded = pathOr("N/A", ["resource", "dateRecorded"], c);
-        const encodedSearchString = encodeURIComponent(
-          path(["resource", "code", "text"], c)
-        );
-        return { name, dateRecorded, encodedSearchString };
-      })
-  );
+  return conditions
+    .filter(c => {
+      const verificationStatus = path(["resource", "verificationStatus"], c);
+      return verificationStatus !== "entered-in-error";
+    })
+    .map(c => {
+      const name = pathOr("N/A", ["resource", "code", "text"], c);
+      const dateRecorded = pathOr("N/A", ["resource", "dateRecorded"], c);
+      const encodedSearchString = encodeURIComponent(
+        path(["resource", "code", "text"], c)
+      );
+      return { name, dateRecorded, encodedSearchString };
+    });
 }

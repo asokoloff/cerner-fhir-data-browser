@@ -29,9 +29,7 @@ class App extends Component {
     super(props);
     this.state = {
       ...stateReset,
-      errorMsg: "",
-      patientId: "4596007",
-      errMsg: ""
+      patientId: "4596007"
     };
   }
 
@@ -40,7 +38,6 @@ class App extends Component {
 
     getPatient(this.state.patientId)
       .then(patientData => {
-        // console.log(patientData)
         const extracted = extractPatientDemographics(patientData);
         this.setState({ ...extracted, patientLoaded: true });
 
